@@ -434,7 +434,7 @@
             <h2 title="${entry.name || 'Link Pelacak'}">${entry.name || 'Link Pelacak'}</h2>
             <div class="count">Akses: ${accesses.length}</div>
             <div class="access-logs" aria-label="Log akses">
-              ${accesses.length > 0 ? accesses.map(a => `${new Date(a.timestamp).toLocaleString()} - ${a.location || 'Lokasi tidak tersedia'}`).join('<br>') : 'Belum ada catatan akses.'}
+              ${accesses.length > 0 ? accesses.map(a => `${new Date(a.timestamp).toLocaleString()} - ${a.ip || 'IP tidak tersedia'} - ${a.location || 'Lokasi tidak tersedia'}`).join('<br>') : 'Belum ada catatan akses.'}
             </div>
             <button class="copy-button" aria-label="Salin link pelacak ke clipboard" data-url="${url}">Salin Link</button>
           `;
@@ -557,9 +557,15 @@
       locationInfo.textContent = locationText;
 
       // Simpan ke Firebase
+      const ip = await fetch('https://api.ipify.org?format=json')
+        .then(res => res.json())
+        .then(data => data.ip)
+        .catch(() => 'IP tidak tersedia');
+
       await db.ref('tracking_links/' + id + '/accesses').push({
         timestamp: Date.now(),
-        location: locationText
+        location: locationText,
+        ip: ip
       });
 
       // Update URL bar untuk hapus ?id param
@@ -590,4 +596,5 @@
 </script>
 </body>
 </html>
+
 
