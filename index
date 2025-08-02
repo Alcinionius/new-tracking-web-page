@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tracking Link Creator</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;800&display=swap');
+
+  :root {
+    --color-bg: #ffffff;
+    --color-primary: #111827;
+    --color-secondary: #6b7280;
+    --color-accent: #000000;
+    --color-accent-hover: #444444;
+    --radius: 0.75rem;
+    --shadow-light: rgba(0,0,0,0.05);
+    --shadow-medium: rgba(0,0,0,0.1);
+    --font-heading: 'Poppins', sans-serif;
+  }
+
+  /* Reset and base */
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    background: var(--color-bg);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Ubuntu, 'Helvetica Neue', sans-serif;
+    color: var(--color-secondary);
+    line-height: 1.5;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  a {
+    color: var(--color-accent);
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+  a:hover,
+  a:focus {
+    color: var(--color-accent-hover);
+    outline: none;
+  }
+
+  /* Layout */
+  header {
+    position: sticky;
+    top: 0;
+    background: var(--color-bg);
+    box-shadow: 0 2px 6px var(--shadow-light);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 2rem;
+    z-index: 100;
+  }
+  header .logo {
+    font-family: var(--font-heading);
+    font-weight: 800;
+    font-size: 1.5rem;
+    color: var(--color-primary);
+    user-select: none;
+  }
+  nav {
+    display: flex;
+    gap: 1.75rem;
+  }
+  nav a {
+    font-weight: 600;
+    font-size: 1rem;
+    line-height: 1;
+  }
+  nav a.cta {
+    padding: 0.5rem 1.25rem;
+    background: var(--color-accent);
+    color: white;
+    border-radius: var(--radius);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    transition: background-color 0.3s ease;
+  }
+  nav a.cta:hover,
+  nav a.cta:focus {
+    background: var(--color-accent-hover);
+    outline: none;
+  }
+
+  main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 3rem 2rem 5rem;
+    flex: 1;
+  }
+
+  /* Hero section */
+  .hero {
+    text-align: center;
+    padding-bottom: 4rem;
+  }
+  .hero h1 {
+    font-family: var(--font-heading);
+    font-weight: 800;
+    font-size: 3.5rem;
+    color: var(--color-primary);
+    margin: 0 0 1rem;
+    line-height: 1.1;
+  }
+  .hero p {
+    font-size: 1.125rem;
+    max-width: 520px;
+    margin: 0 auto;
+    color: var(--color-secondary);
+  }
+  .hero button {
+    margin-top: 2.75rem;
+    padding: 0.75rem 2.5rem;
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: white;
+    background-color: var(--color-accent);
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  .hero button:hover,
+  .hero button:focus {
+    background-color: var(--color-accent-hover);
+    outline:none;
+  }
+
+  /* Sections */
+  section#create-section {
+    max-width: 600px;
+    margin: 0 auto 4rem;
+  }
+  form#create-link-form {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+  form#create-link-form input[type="text"] {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    border: 1.5px solid var(--color-secondary);
+    border-radius: var(--radius);
+    transition: border-color 0.3s ease;
+    color: var(--color-primary);
+  }
+  form#create-link-form input[type="text"]:focus {
+    border-color: var(--color-accent);
+    outline-offset: 2px;
+  }
+  form#create-link-form button {
+    font-weight: 700;
+    padding: 0 1.5rem;
+    border: none;
+    border-radius: var(--radius);
+    background-color: var(--color-accent);
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  form#create-link-form button:hover,
+  form#create-link-form button:focus {
+    background-color: var(--color-accent-hover);
+    outline:none;
+  }
+
+  /* Links list */
+  #links-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(280px,1fr));
+    gap: 1.5rem;
+  }
+  .link-card {
+    background: #f9fafb;
+    border-radius: var(--radius);
+    box-shadow: 0 4px 8px var(--shadow-medium);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+  }
+  .link-card h2 {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 1.25rem;
+    margin: 0 0 0.5rem 0;
+    color: var(--color-primary);
+    word-break: break-word;
+  }
+  .link-card .count {
+    color: var(--color-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
+  }
+  .link-card .access-logs {
+    font-family: monospace;
+    font-size: 0.8rem;
+    color: var(--color-secondary);
+    max-height: 140px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    background: white;
+    border-radius: var(--radius);
+  }
+  .link-card button.copy-button {
+    margin-top: auto;
+    background: transparent;
+    border: 1.5px solid var(--color-accent);
+    color: var(--color-accent);
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  .link-card button.copy-button:hover,
+  .link-card button.copy-button:focus {
+    background-color: var(--color-accent);
+    color: white;
+    outline:none;
+  }
+
+  /* Notification */
+  #notification {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    background: var(--color-accent);
+    color: white;
+    padding: 0.75rem 1.25rem;
+    border-radius: var(--radius);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+    font-weight: 700;
+    font-size: 0.95rem;
+  }
+  #notification.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Tracking page */
+  #tracking-page {
+    max-width: 600px;
+    margin: 4rem auto;
+    padding: 2rem;
+    background: #f9fafb;
+    border-radius: var(--radius);
+    box-shadow: 0 6px 12px var(--shadow-medium);
+    text-align: center;
+    color: var(--color-primary);
+    display: none;
+  }
+  #tracking-page.active {
+    display: block;
+  }
+  #tracking-page h1 {
+    font-family: var(--font-heading);
+    font-weight: 800;
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+  }
+  #tracking-page p.main-text {
+    font-size: 1.125rem;
+    margin-bottom: 0.5rem;
+  }
+  #tracking-page p.location-text {
+    font-weight: 600;
+    font-size: 1.125rem;
+    color: var(--color-primary);
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .hero h1 {
+      font-size: 2.5rem;
+    }
+    form#create-link-form {
+      flex-direction: column;
+    }
+    form#create-link-form button {
+      width: 100%;
+    }
+    nav {
+      gap: 1rem;
+    }
+  }
+</style>
+</head>
+<body>
+  <header role="banner" id="main-header">
+    <div class="logo" aria-label="Logo Pembuat Link Pelacak">TrackLink</div>
+    <nav role="navigation" aria-label="Navigasi utama" id="main-nav">
+      <a href="#create-section" id="btn-create-nav">Buat Link</a>
+      <a href="#links-list" id="btn-links-nav" style="display:none;">Link mu</a>
+    </nav>
+  </header>
+<main>
+  <section class="hero" aria-label="Bagian utama">
+    <h1>Buat link tracking di web ini</h1>
+    <p>Hasilkan URL yang bisa mengetahui lokasi temanmu yang mengakses.</p>
+    <button id="btn-create-link" aria-describedby="create-section">Buat Link Pertama Mu</button>
+  </section>
+
+  <section id="create-section" aria-label="Create tracking link" tabindex="-1" hidden>
+    <form id="create-link-form" aria-label="Create tracking link form">
+      <input
+        type="text"
+        id="link-name"
+        name="link-name"
+        placeholder="Enter a name or description for your link (optional)"
+        aria-label="Link name or description"
+        maxlength="50"
+        autocomplete="off"
+      />
+      <button type="submit" aria-label="Create tracking link">Create Link</button>
+    </form>
+  </section>
+
+  <section id="links-list" aria-label="Listing of tracking links" tabindex="-1" hidden></section>
+
+  <section id="tracking-page" role="main" aria-live="polite" aria-label="Tracking page content">
+    <h1>Tracking Link Accessed</h1>
+    <p class="main-text">Anda telah dilacak.</p>
+    <p class="location-text" id="location-info" style="display:none;">Mendeteksi lokasi...</p>
+    <p style="color:#6b7280; font-size:0.9rem; margin-top:1.5rem;">
+      Data lokasi dan IP Anda dikirimkan ke pembuat link pelacak ini.
+    </p>
+  </section>
+</main>
+<div id="notification" role="alert" aria-live="assertive"></div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script>
+  // Konfigurasi Firebase milikmu
+  const firebaseConfig = {
+    apiKey: "AIzaSyCaY9I5NLYugx4Sis7JTjX5VKacOgBg-dc",
+    authDomain: "tracking-app-26013.firebaseapp.com",
+    databaseURL: "https://tracking-app-26013-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "tracking-app-26013",
+    storageBucket: "tracking-app-26013.firebasestorage.app",
+    messagingSenderId: "779119901021",
+    appId: "1:779119901021:web:21daecc74f1bed5eef10b4",
+    measurementId: "G-ESHLDDX7P2"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+
+  // User identification
+  function getUserId() {
+    let userId = localStorage.getItem('tracking_user_id');
+    if (!userId) {
+      userId = 'user_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+      localStorage.setItem('tracking_user_id', userId);
+    }
+    return userId;
+  }
+
+  // Check if user is admin
+  function isAdmin() {
+    return localStorage.getItem('tracking_admin') === 'true';
+  }
+
+    // Check if user accessed a tracking link (receiver)
+    function isLinkReceiver() {
+        const params = new URLSearchParams(window.location.search);
+        const id = params.get('id');
+        // Check if we're currently tracking a visitor (has tracking ID in session or URL)
+        return (sessionStorage.getItem('currentTrackingId') !== null) || (id && id.startsWith('trk_'));
+    }
+    
+    // Check if user is the creator of links (not a receiver)
+    function isLinkCreator() {
+        // If we have a tracking ID in session or URL, we're a receiver, not a creator
+        if (isLinkReceiver()) return false;
+        // If we have a user ID, we're a creator
+        return localStorage.getItem('tracking_user_id') !== null;
+    }
+
+  (() => {
+    const el = (selector) => document.querySelector(selector);
+    const byId = (id) => document.getElementById(id);
+
+    const notification = byId('notification');
+    const heroSection = document.querySelector('.hero');
+    const createSection = byId('create-section');
+    const linksListSection = byId('links-list');
+    const trackingPageSection = byId('tracking-page');
+    const btnCreateLink = byId('btn-create-link');
+    
+    const userId = getUserId();
+    let userCanCreateLinks = true;
+
+    function showNotification(message) {
+      notification.textContent = message;
+      notification.classList.add('show');
+      setTimeout(() => notification.classList.remove('show'), 2500);
+    }
+
+    function generateId() {
+      return 'trk_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+    }
+
+    // Navigation functions
+    function showHomePage() {
+      heroSection.style.display = 'block';
+      createSection.hidden = true;
+      linksListSection.hidden = true;
+      trackingPageSection.classList.remove('active');
+      setFocus(heroSection);
+    }
+
+    function showCreateLinkPage() {
+      heroSection.style.display = 'none';
+      createSection.hidden = false;
+      linksListSection.hidden = false;
+      trackingPageSection.classList.remove('active');
+      setFocus(createSection);
+    }
+
+    function showTrackingPage() {
+      heroSection.style.display = 'none';
+      createSection.hidden = true;
+      linksListSection.hidden = true;
+      trackingPageSection.classList.add('active');
+      
+      // For link receivers, hide certain navigation elements
+      if (isLinkReceiver()) {
+        document.getElementById('btn-links-nav').style.display = 'none';
+        document.getElementById('btn-create-nav').style.display = 'none';
+      }
+      
+      setFocus(trackingPageSection);
+    }
+
+    function setFocus(element) {
+      if (!element) return;
+      element.setAttribute('tabindex', '-1');
+      element.focus();
+    }
+
+    // Render links from Firebase (only user's links)
+    function renderLinksList() {
+      // Only render links list for creators, not receivers
+      if (isLinkReceiver()) {
+        linksListSection.innerHTML = '<p style="color: var(--color-secondary);font-size:1rem;">Anda adalah penerima link, tidak dapat melihat daftar link.</p>';
+        linksListSection.hidden = false;
+        return;
+      }
+      
+      db.ref('tracking_links').orderByChild('creator').equalTo(userId).once('value', (snapshot) => {
+        const data = snapshot.val() || {};
+        if (Object.keys(data).length === 0) {
+          linksListSection.innerHTML = '<p style="color: var(--color-secondary);font-size:1rem;">Belum ada link pelacak yang dibuat.</p>';
+          linksListSection.hidden = false;
+          return;
+        }
+        const fragment = document.createDocumentFragment();
+        Object.entries(data).forEach(([id, entry]) => {
+          const card = document.createElement('article');
+          card.className = 'link-card';
+          const url = window.location.origin + window.location.pathname + '?id=' + encodeURIComponent(id);
+          const accesses = entry.accesses ? Object.values(entry.accesses) : [];
+          card.innerHTML = `
+            <h2 title="${entry.name || 'Link Pelacak'}">${entry.name || 'Link Pelacak'}</h2>
+            <div class="count">Akses: ${accesses.length}</div>
+            <div class="access-logs" aria-label="Log akses">
+              ${accesses.length > 0 ? accesses.map(a => `${new Date(a.timestamp).toLocaleString()} - ${a.ip || 'IP tidak tersedia'} - ${a.location || 'Lokasi tidak tersedia'}`).join('<br>') : 'Belum ada catatan akses.'}
+            </div>
+            <button class="copy-button" aria-label="Salin link pelacak ke clipboard" data-url="${url}">Salin Link</button>
+          `;
+          fragment.appendChild(card);
+        });
+        linksListSection.innerHTML = '';
+        linksListSection.appendChild(fragment);
+        linksListSection.hidden = false;
+      });
+    }
+
+    // Copy button click handler
+    linksListSection.addEventListener('click', (e) => {
+      if (!e.target.classList.contains('copy-button')) return;
+      const url = e.target.getAttribute('data-url');
+      navigator.clipboard.writeText(url).then(() => {
+        showNotification('Link pelacak disalin ke clipboard!');
+      }).catch(() => {
+        showNotification('Gagal menyalin. Silakan salin secara manual.');
+      });
+    });
+
+    // Create link form submit handler
+    const createForm = byId('create-link-form');
+    createForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      // Check if user can create links
+      if (!userCanCreateLinks) {
+        showNotification('Anda tidak diizinkan membuat link baru.');
+        return;
+      }
+      
+      // If user is a link receiver, require code validation
+      if (isLinkReceiver()) {
+        const code = prompt('Masukkan kode untuk membuat link baru:');
+        if (code !== '202511') {
+          showNotification('Kode salah. Anda tidak diizinkan membuat link baru.');
+          return;
+        }
+      }
+      
+      const input = byId('link-name');
+      let name = input.value.trim();
+      if (name.length > 50) name = name.slice(0, 50);
+      const id = generateId();
+      
+      // For non-admin receivers, require admin approval
+      const requiresApproval = isLinkReceiver() && !isAdmin();
+      const status = requiresApproval ? 'pending' : 'active';
+      
+      await db.ref('tracking_links/' + id).set({
+        name,
+        creator: userId,
+        status: status,
+        createdAt: Date.now(),
+        accesses: []
+      });
+      
+      input.value = '';
+      renderLinksList();
+      
+      if (requiresApproval) {
+        showNotification('Link menunggu persetujuan admin.');
+      } else {
+        showNotification('Link pelacak dibuat!');
+      }
+    });
+
+    // Hero CTA button click
+    btnCreateLink.addEventListener('click', () => {
+      // Check if user can create links
+      if (!userCanCreateLinks) {
+        showNotification('Anda tidak diizinkan membuat link baru.');
+        return;
+      }
+      
+      showCreateLinkPage();
+      setFocus(byId('link-name'));
+    });
+    
+
+    // Utilities for location detection
+    function getGeoLocation(timeoutMs = 7000) {
+      return new Promise((resolve, reject) => {
+        if (!navigator.geolocation) {
+          reject('API Geolokasi tidak didukung');
+          return;
+        }
+        let didTimeout = false;
+        const timer = setTimeout(() => {
+          didTimeout = true;
+          reject('Waktu habis');
+        }, timeoutMs);
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            if (didTimeout) return;
+            clearTimeout(timer);
+            resolve({ lat: pos.coords.latitude, lon: pos.coords.longitude });
+          },
+          (err) => {
+            if (didTimeout) return;
+            clearTimeout(timer);
+          reject(err.message || 'Izin geolokasi ditolak');
+          },
+          { timeout: timeoutMs }
+        );
+      });
+    }
+
+    async function fetchIPLocation() {
+      try {
+        const resp = await fetch('https://ipinfo.io/json?token=2b36cac6634852');
+        if (!resp.ok) throw new Error('Gagal mengambil API');
+        const data = await resp.json();
+        if (!data.loc) return null;
+        const [lat, lon] = data.loc.split(',');
+        return { lat: parseFloat(lat), lon: parseFloat(lon), city: data.city, region: data.region, country: data.country };
+      } catch {
+        return null;
+      }
+    }
+
+    function formatLocation(loc) {
+      if (!loc) return 'Lokasi tidak diketahui';
+      if (loc.city && loc.region && loc.country) {
+        return `${loc.city}, ${loc.region}, ${loc.country}`;
+      }
+      if ('lat' in loc && 'lon' in loc) {
+        return `Lintang: ${loc.lat.toFixed(4)}, Bujur: ${loc.lon.toFixed(4)}`;
+      }
+      return 'Lokasi tidak tersedia';
+    }
+
+    async function trackVisitor(id) {
+      showTrackingPage();
+      sessionStorage.setItem('currentTrackingId', id);
+
+      const locationInfo = byId('location-info');
+      locationInfo.textContent = 'Mendeteksi lokasi...';
+
+      let locationResult = null;
+      try {
+        locationResult = await getGeoLocation();
+      } catch {
+        locationResult = await fetchIPLocation();
+      }
+
+      const locationText = formatLocation(locationResult);
+      locationInfo.textContent = locationText;
+
+      // Simpan ke Firebase
+      const ip = await fetch('https://api.ipify.org?format=json')
+        .then(res => res.json())
+        .then(data => data.ip)
+        .catch(() => 'IP tidak tersedia');
+
+      await db.ref('tracking_links/' + id + '/accesses').push({
+        timestamp: Date.now(),
+        location: locationText,
+        ip: ip
+      });
+
+      // Update URL bar untuk hapus ?id param
+      window.history.replaceState({}, '', window.location.pathname);
+      
+      // Check if user can create links after tracking
+      if (isLinkReceiver() && !isAdmin()) {
+        userCanCreateLinks = false;
+        // Hide create link button
+        btnCreateLink.style.display = 'none';
+        // Also hide navigation links for receivers
+        document.getElementById('btn-links-nav').style.display = 'none';
+        document.getElementById('btn-create-nav').style.display = 'none';
+      }
+      
+      // Always hide links list for receivers
+      linksListSection.hidden = true;
+      
+    }
+
+    // On load - check if URL has ?id= tracking param or sessionStorage
+    function checkTrackingParam() {
+      const params = new URLSearchParams(window.location.search);
+      let id = params.get('id');
+      
+      // If we have a tracking ID, we're a receiver
+      if (id && id.startsWith('trk_')) {
+        // Tracking mode
+        trackVisitor(id);
+        return;
+      }
+      
+      // Check if we have a tracking ID in session storage (from previous tracking)
+      const sessionId = sessionStorage.getItem('currentTrackingId');
+      if (sessionId) {
+        // We're still in receiver mode
+        trackVisitor(sessionId);
+        return;
+      }
+      
+      // Normal home view for creators
+      showHomePage();
+      renderLinksList();
+      
+      // Show navigation links for creators
+      document.getElementById('btn-links-nav').style.display = 'block';
+      document.getElementById('btn-create-nav').style.display = 'block';
+      
+      // Check if user can create links (not a receiver)
+      if (!isLinkCreator()) {
+        userCanCreateLinks = false;
+        // Hide create link button for non-creators
+        btnCreateLink.style.display = 'none';
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      checkTrackingParam();
+    });
+  })();
+</script>
+</body>
+</html>
+
